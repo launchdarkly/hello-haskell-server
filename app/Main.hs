@@ -21,5 +21,5 @@ main = do
     forever $ do
         launched <- boolVariation client yourFlagKey user False
         putStrLn $ "Flag is: " ++ show launched
-        -- one microsecond
+        -- one second
         threadDelay $ 1 * 1000000

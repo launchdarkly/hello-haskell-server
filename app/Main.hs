@@ -1,6 +1,6 @@
 module Main where
 
-import Lib
+import LaunchDarkly.Server
 
 main :: IO ()
-main = someFunc
+main = putStrLn "test"

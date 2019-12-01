@@ -3,7 +3,21 @@
 # For more information, please see the documentation at:
 #   https://docs.haskellstack.org/en/stable/lock_files
 
-packages: []
+packages:
+- completed:
+    cabal-file:
+      size: 4509
+      sha256: 18ce421d27748cd27657aed7e32d4bbe9a13dd639b3f6787016a95ec8329e1d6
+    name: launchdarkly-server-sdk
+    version: 0.1.0.0
+    git: git@github.com:launchdarkly/haskell-server-sdk-private.git
+    pantry-tree:
+      size: 2471
+      sha256: dd1d9acc6c38984f206311418af5398385bb637a6cbca203e92f73bc8e241fbf
+    commit: b3318895055f33b4f9e7123ef75a4c68cea43b92
+  original:
+    git: git@github.com:launchdarkly/haskell-server-sdk-private.git
+    commit: b3318895055f33b4f9e7123ef75a4c68cea43b92
 snapshots:
 - completed:
     size: 524804

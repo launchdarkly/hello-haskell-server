@@ -16,7 +16,7 @@ yourFlagKey = "<put your feature key here>"
 
 main :: IO ()
 main = do
-    let user = makeUser "abc"
+    let user = makeUser "user@example.com"
     client <- makeClient $ makeConfig yourSDKKey
     forever $ do
         launched <- boolVariation client yourFlagKey user False

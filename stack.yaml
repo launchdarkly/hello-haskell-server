@@ -1,0 +1,8 @@
+resolver: lts-14.16
+
+packages:
+- .
+
+extra-deps:
+- git: git@github.com:launchdarkly/haskell-server-sdk-private.git
+  commit: b3318895055f33b4f9e7123ef75a4c68cea43b92

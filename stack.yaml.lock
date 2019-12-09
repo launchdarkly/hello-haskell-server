@@ -6,18 +6,18 @@
 packages:
 - completed:
     cabal-file:
-      size: 4509
-      sha256: 18ce421d27748cd27657aed7e32d4bbe9a13dd639b3f6787016a95ec8329e1d6
+      size: 4639
+      sha256: aa7ea0a06d514d03e4c47f75c86a1c931946a8ceb26b3298d35534eec2a3202b
     name: launchdarkly-server-sdk
-    version: 0.1.0.0
-    git: git@github.com:launchdarkly/haskell-server-sdk-private.git
+    version: 0.1.0
+    git: git@github.com:launchdarkly/haskell-server-sdk.git
     pantry-tree:
-      size: 2471
-      sha256: dd1d9acc6c38984f206311418af5398385bb637a6cbca203e92f73bc8e241fbf
-    commit: b3318895055f33b4f9e7123ef75a4c68cea43b92
+      size: 2568
+      sha256: f7f4ec58a144d49747d2d8e5e8f1b8a53a31ff02e009b5607ebb71121a5dc7b8
+    commit: ff490a9360eda956862076c6b4d7097fc3d1d866
   original:
-    git: git@github.com:launchdarkly/haskell-server-sdk-private.git
-    commit: b3318895055f33b4f9e7123ef75a4c68cea43b92
+    git: git@github.com:launchdarkly/haskell-server-sdk.git
+    commit: ff490a9360eda956862076c6b4d7097fc3d1d866
 snapshots:
 - completed:
     size: 524804

@@ -5,12 +5,12 @@
 
 packages:
 - completed:
-    hackage: launchdarkly-server-sdk-1.0.0@sha256:2e140e7cebcfbf7156764ac6d167e4c352e18a31cb4dd394f567c5169e0b888e,6034
+    hackage: launchdarkly-server-sdk-3.0.1@sha256:8f9bf876267837fc49551e2e0479e2558bb894282e086697673ecda10bfff453,7512
     pantry-tree:
-      size: 2578
-      sha256: 6a5854b30ab7a4451f0bcfb987333969be4a81c57cb4b27e70d9357111a6cfc7
+      size: 4273
+      sha256: d85e014a10ab8ef8e63afe769f0ef83c3a78c38cad978ed3e1b51a56b0673aa3
   original:
-    hackage: launchdarkly-server-sdk-1.0.0
+    hackage: launchdarkly-server-sdk-3.0.1
 snapshots:
 - completed:
     size: 524804

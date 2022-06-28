@@ -1,10 +1,21 @@
-### LaunchDarkly Sample Haskell Server-side Application
-We've built a simple console application that demonstrates how LaunchDarkly's SDK works. Below, you'll find the basic build procedure, but for more comprehensive instructions, you can visit your [Quickstart page](https://app.launchdarkly.com/quickstart).
+# LaunchDarkly sample Haskell application
 
-##### Build instructions
+We've built a simple console application that demonstrates how LaunchDarkly's SDK works.
 
-The sample application is built using [stack](https://docs.haskellstack.org/en/stable/README/).
+Below, you'll find the build procedure. For more comprehensive instructions, you can visit your [Quickstart page](https://app.launchdarkly.com/quickstart#/) or the [Haskell reference guide](https://docs.launchdarkly.com/sdk/server-side/haskell).
 
-1. Copy your SDK key and feature flag key from your LaunchDarkly dashboard into `app/Main.hs`
-2. Run `stack build`
-3. Run `stack exec hello`
+## Build instructions
+
+1. Edit Main.hs and set the value of sdkKey to your LaunchDarkly SDK key. If there is an existing boolean feature flag in your LaunchDarkly project that you want to evaluate, set featureFlagKey to the flag key.
+
+``` haskell
+sdkKey :: Text
+sdkKey = "1234567890abcdef"
+
+featureFlagKey :: Text
+featureFlagKey = "my-flag"
+```
+
+2. On the command line, run `stack run`
+
+You should receive the message "Feature flag '<flag key>' is <true/false> for this user".

@@ -1,27 +1,58 @@
 version: 2.1
-jobs:
-  build-linux:
-    docker:
-      - image: fpco/stack-build:lts
+
+commands:
+  build-and-cache:
+    description: "Restore cache, build, update cache"
+    parameters:
+      cache-type:
+        type: string
     steps:
-      - checkout
       - restore_cache:
           name: Restore Cached Dependencies
           keys:
-            - haskell-v1-linux-{{ checksum "stack.yaml" }}-{{ checksum "package.yaml" }}
-            - haskell-v1-linux-{{ checksum "stack.yaml" }}
+            - haskell-v1-<< parameters.cache-type >>-{{ checksum "stack.yaml" }}-{{ checksum "package.yaml" }}
+            - haskell-v1-<< parameters.cache-type >>-{{ checksum "stack.yaml" }}
       - run:
           name: Resolve/Update Dependencies
           command: stack --no-terminal setup
       - run:
           name: Build
           command: stack --no-terminal build
+
       - save_cache:
           name: Cache Dependencies
-          key: haskell-v1-linux-{{ checksum "stack.yaml" }}-{{ checksum "package.yaml" }}
+          key: haskell-v1-<< parameters.cache-type >>-{{ checksum "stack.yaml" }}-{{ checksum "package.yaml" }}
           paths:
             - "/root/.stack"
             - ".stack-work"
+
+  run-and-test-output:
+    description: "Run the main application and verify the output matches our expectations"
+    steps:
+      - run:
+          name: insert SDK key and flag key into demo code
+          command: |
+            sed -i.bak "/^sdkKey =/c sdkKey = \"${LD_HELLO_WORLD_SDK_KEY}\"" app/Main.hs
+            sed -i.bak "/^featureFlagKey =/c featureFlagKey = \"${LD_HELLO_WORLD_FLAG_KEY_WITH_TRUE_VALUE}\"" app/Main.hs
+      - run:
+          name: Run
+          command: stack run  | tee output.txt
+      - run:
+          name: Check output
+          command: |
+            grep "is True for this user" output.txt || (echo "Flag did not evaluate to expected true value" && exit 1)
+      
+
+jobs:
+  build-linux:
+    docker:
+      - image: fpco/stack-build:lts
+    steps:
+      - checkout
+      - build-and-cache:
+          cache-type: "linux"
+      - run-and-test-output
+
 
   build-osx:
     macos:
@@ -31,30 +62,19 @@ jobs:
       - run:
           name: Install deps
           command: brew install haskell-stack pcre pkg-config
-      - restore_cache:
-          name: Restore Cached Dependencies
-          keys:
-            - haskell-v1-osx-{{ checksum "stack.yaml" }}-{{ checksum "package.yaml" }}
-            - haskell-v1-osx-{{ checksum "stack.yaml" }}
-      - run:
-          name: Resolve/Update Dependencies
-          command: stack --no-terminal setup
-      - run:
-          name: Build
-          command: stack --no-terminal build
-      - save_cache:
-          name: Cache Dependencies
-          key: haskell-v1-osx-{{ checksum "stack.yaml" }}-{{ checksum "package.yaml" }}
-          paths:
-            - "/root/.stack"
-            - ".stack-work"
+      - checkout
+      - build-and-cache:
+          cache-type: "osx"
+      - run-and-test-output
 
 workflows:
   version: 2
   build_all:
     jobs:
-      - build-linux
-      - build-osx
+      - build-linux:
+          context: hello-world-demos
+      - build-osx:
+          context: hello-world-demos
 
   test-daily:
     triggers:
@@ -64,5 +84,7 @@ workflows:
           branches:
             only: main
     jobs:
-      - build-linux
-      - build-osx
+      - build-linux:
+          context: hello-world-demos
+      - build-osx:
+          context: hello-world-demos

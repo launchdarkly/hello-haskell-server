@@ -32,8 +32,8 @@ commands:
       - run:
           name: insert SDK key and flag key into demo code
           command: |
-            sed -i.bak "/^sdkKey =/c sdkKey = \"${LD_HELLO_WORLD_SDK_KEY}\"" app/Main.hs
-            sed -i.bak "/^featureFlagKey =/c featureFlagKey = \"${LD_HELLO_WORLD_FLAG_KEY_WITH_TRUE_VALUE}\"" app/Main.hs
+            sed -i.bak "s/sdkKey *= *\".*\"/sdkKey = \"${LD_HELLO_WORLD_SDK_KEY}\"/" app/Main.hs
+            sed -i.bak "s/featureFlagKey *= *\".*\"/featureFlagKey = \"${LD_HELLO_WORLD_FLAG_KEY_WITH_TRUE_VALUE}\"/" app/Main.hs
       - run:
           name: Run
           command: stack run  | tee output.txt
@@ -41,7 +41,6 @@ commands:
           name: Check output
           command: |
             grep "is True for this user" output.txt || (echo "Flag did not evaluate to expected true value" && exit 1)
-      
 
 jobs:
   build-linux:
@@ -52,7 +51,6 @@ jobs:
       - build-and-cache:
           cache-type: "linux"
       - run-and-test-output
-
 
   build-osx:
     macos:

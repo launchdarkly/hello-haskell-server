@@ -34,7 +34,7 @@ main :: IO ()
 main
   | sdkKey == "" = showMessage "Please edit Main.hs to set sdkKey to your LaunchDarkly SDK key first"
   | otherwise = do
-    let user = LD.makeUser "user@example.com" & LD.userSetName (Just "Sandy")
+    let user = LD.makeUser "example-user-key" & LD.userSetName (Just "Sandy")
     client <- LD.makeClient $ LD.makeConfig sdkKey
     initialized <- timeout (5_000 * 1_000) (waitForClient client)
 

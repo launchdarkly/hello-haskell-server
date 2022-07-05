@@ -4,4 +4,4 @@ packages:
 - .
 
 extra-deps:
-- launchdarkly-server-sdk-1.0.0
+- launchdarkly-server-sdk-3.0.1

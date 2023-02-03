@@ -5,15 +5,15 @@
 
 packages:
 - completed:
-    hackage: launchdarkly-server-sdk-3.0.1@sha256:8f9bf876267837fc49551e2e0479e2558bb894282e086697673ecda10bfff453,7512
+    hackage: launchdarkly-server-sdk-4.0.0@sha256:f4d5bf73be3041adc222ee02e2b6e58eaf64f5c23b17cb9fec550a5c6970684f,7550
     pantry-tree:
-      size: 4273
-      sha256: d85e014a10ab8ef8e63afe769f0ef83c3a78c38cad978ed3e1b51a56b0673aa3
+      sha256: 47296b9bc9729ef13a269cefc4e7d5a69213ee36c7139e8170c587c0d865eea6
+      size: 4325
   original:
-    hackage: launchdarkly-server-sdk-3.0.1
+    hackage: launchdarkly-server-sdk-4.0.0
 snapshots:
 - completed:
-    size: 524804
-    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/14/16.yaml
-    sha256: 4d1519a4372d051d47a5eae2241cf3fb54e113d7475f89707ddb6ec06add2888
-  original: lts-14.16
+    sha256: 637fb77049b25560622a224845b7acfe81a09fdb6a96a3c75997a10b651667f6
+    size: 534126
+    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/16/31.yaml
+  original: lts-16.31

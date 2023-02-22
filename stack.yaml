@@ -1,7 +1,7 @@
-resolver: lts-14.16
+resolver: lts-16.31
 
 packages:
 - .
 
 extra-deps:
-- launchdarkly-server-sdk-3.0.1
+- launchdarkly-server-sdk-4.0.0

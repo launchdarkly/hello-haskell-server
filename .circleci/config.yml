@@ -40,7 +40,7 @@ commands:
       - run:
           name: Check output
           command: |
-            grep "is True for this user" output.txt || (echo "Flag did not evaluate to expected true value" && exit 1)
+            grep "is True for this context" output.txt || (echo "Flag did not evaluate to expected true value" && exit 1)
 
 jobs:
   build-linux:
@@ -48,13 +48,16 @@ jobs:
       - image: fpco/stack-build:lts
     steps:
       - checkout
+      - run:
+          name: Install libpcre
+          command: pkg-config --exists libpcre || apt-get update && apt-get install -y --no-install-recommends libpcre3-dev
       - build-and-cache:
           cache-type: "linux"
       - run-and-test-output
 
   build-osx:
     macos:
-      xcode: "11.7.0"
+      xcode: "12.5.1"
     steps:
       - checkout
       - run:

@@ -34,16 +34,16 @@ main :: IO ()
 main
   | sdkKey == "" = showMessage "Please edit Main.hs to set sdkKey to your LaunchDarkly SDK key first"
   | otherwise = do
-     {- Set up the user properties. This user should appear on your LaunchDarkly users dashboard soon after you run the demo. -}
-    let user = LD.makeUser "example-user-key" & LD.userSetName (Just "Sandy")
+     {- Set up the context properties. This context should appear on your LaunchDarkly users dashboard soon after you run the demo. -}
+    let context = LD.makeContext "example-user-key" "user" & LD.withName "Sandy"
     client <- LD.makeClient $ LD.makeConfig sdkKey
     initialized <- timeout (5_000 * 1_000) (waitForClient client)
 
     case initialized of
       Just True ->  do
         showMessage "SDK successfully initialized!"
-        launched <- LD.boolVariation client featureFlagKey user False
-        showMessage $ printf "Feature flag '%s' is %s for this user." featureFlagKey (show launched)
+        launched <- LD.boolVariation client featureFlagKey context False
+        showMessage $ printf "Feature flag '%s' is %s for this context." featureFlagKey (show launched)
          {- Here we ensure that the SDK shuts down cleanly and has a chance to deliver analytics events to LaunchDarkly before the program exits. If analytics events are not delivered, the user properties and flag usage statistics will not appear on your dashboard. In a normal long-running application, the SDK would continue running and events would be delivered automatically in the background. -}
         LD.close client
       _ -> putStrLn "SDK failed to initialize"

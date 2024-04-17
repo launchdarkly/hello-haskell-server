@@ -11,9 +11,43 @@ import qualified LaunchDarkly.Server as LD
 import System.Timeout (timeout)
 import Text.Printf (printf, hPrintf)
 import System.Environment (lookupEnv)
+import Data.Time (getCurrentTime)
+import Data.Time.Format
+import Data.Maybe (isJust)
 
-showMessage :: String -> IO ()
-showMessage = printf "*** %s\n\n"
+showEvaluationResult :: String -> Bool -> IO ()
+showEvaluationResult key value = do
+    now <- getCurrentTime
+    let formattedTime = formatTime defaultTimeLocale "%H:%M:%S" now
+    printf "*** %s: The %s feature flag evaluates to %s\n" formattedTime key (show value)
+
+showBanner :: IO ()
+showBanner = putStr "\n\
+\        ██       \n\
+\          ██     \n\
+\      ████████   \n\
+\         ███████ \n\
+\██ LAUNCHDARKLY █\n\
+\         ███████ \n\
+\      ████████   \n\
+\          ██     \n\
+\        ██       \n\
+\\n\
+\"
+
+showMessage :: String -> Bool -> Maybe Bool -> Bool -> IO Bool
+showMessage key True _ True = do
+    showBanner
+    showEvaluationResult key True
+    pure False
+showMessage key value Nothing showBanner = do
+    showEvaluationResult key value
+    pure showBanner
+showMessage key value (Just lastValue) showBanner
+    | value /= lastValue = do
+        showEvaluationResult key value
+        pure showBanner
+    | otherwise = pure showBanner
 
 waitForClient :: LD.Client -> IO Bool
 waitForClient client = do
@@ -23,25 +57,34 @@ waitForClient client = do
         LD.Initialized -> return True
         _anyOtherStatus -> return False
 
-evaluate :: Maybe String -> Maybe String -> IO ()
-evaluate (Just sdkKey) (Just featureFlagKey) = do
-    {- Set up the context properties. This context should appear on your LaunchDarkly users dashboard soon after you run the demo. -}
+evaluateLoop :: LD.Client -> String -> LD.Context -> Maybe Bool -> Bool -> Bool -> IO ()
+evaluateLoop client featureFlagKey context lastValue showBanner ciMode = do
+    value <- LD.boolVariation client (pack featureFlagKey) context False
+    showBanner' <- showMessage featureFlagKey value lastValue showBanner
+
+    if ciMode then pure () else threadDelay (1 * 1_000_000) >> evaluateLoop client featureFlagKey context (Just value) showBanner' False
+
+evaluate :: Maybe String -> Maybe String -> Bool -> IO ()
+evaluate (Just sdkKey) Nothing ciMode = do evaluate (Just sdkKey) (Just "sample-feature") ciMode
+evaluate (Just sdkKey) (Just featureFlagKey) ciMode = do
+    -- Set up the evaluation context. This context should appear on your
+    -- LaunchDarkly contexts dashboard soon after you run the demo.
     let context = LD.makeContext "example-user-key" "user" & LD.withName "Sandy"
     client <- LD.makeClient $ LD.makeConfig (pack sdkKey)
     initialized <- timeout (5_000 * 1_000) (waitForClient client)
 
     case initialized of
         Just True ->  do
-            showMessage "SDK successfully initialized!"
-            launched <- LD.boolVariation client (pack featureFlagKey) context False
-            showMessage $ printf "Feature flag '%s' is %s for this context." featureFlagKey (show launched)
-            {- Here we ensure that the SDK shuts down cleanly and has a chance to deliver analytics events to LaunchDarkly before the program exits. If analytics events are not delivered, the user properties and flag usage statistics will not appear on your dashboard. In a normal long-running application, the SDK would continue running and events would be delivered automatically in the background. -}
-            LD.close client
-        _notInitialized -> putStrLn "SDK failed to initialize"
-evaluate  _ _ = putStrLn "You must define LAUNCHDARKLY_SERVER_KEY and LAUNCHDARKLY_FLAG_KEY before running this script"
+            print "*** SDK successfully initialized!"
+            evaluateLoop client featureFlagKey context Nothing True ciMode
+        _notInitialized -> putStrLn "*** SDK failed to initialize. Please check your internet connection and SDK credential for any typo."
+evaluate  _ _ _ = putStrLn "*** You must define LAUNCHDARKLY_SERVER_KEY and LAUNCHDARKLY_FLAG_KEY before running this script"
 
 main :: IO ()
 main = do
-    sdkKeyEnv <- lookupEnv "LAUNCHDARKLY_SERVER_KEY"
-    featureFlagKeyEnv <- lookupEnv "LAUNCHDARKLY_FLAG_KEY"
-    evaluate sdkKeyEnv featureFlagKeyEnv
+    -- Set sdkKey to your LaunchDarkly SDK key.
+    sdkKey <- lookupEnv "LAUNCHDARKLY_SERVER_KEY"
+    -- Set featureFlagKey to the feature flag key you want to evaluate.
+    featureFlagKey <- lookupEnv "LAUNCHDARKLY_FLAG_KEY"
+    ciMode <- lookupEnv "CI"
+    evaluate sdkKey featureFlagKey (isJust ciMode)

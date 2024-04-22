@@ -21,8 +21,9 @@ showEvaluationResult key value = do
     let formattedTime = formatTime defaultTimeLocale "%H:%M:%S" now
     printf "*** %s: The %s feature flag evaluates to %s\n" formattedTime key (show value)
 
-showBanner :: IO ()
-showBanner = putStr "\n\
+showBanner :: Bool -> IO ()
+showBanner False = pure ()
+showBanner _ = putStr "\n\
 \        ██       \n\
 \          ██     \n\
 \      ████████   \n\
@@ -35,19 +36,15 @@ showBanner = putStr "\n\
 \\n\
 \"
 
-showMessage :: String -> Bool -> Maybe Bool -> Bool -> IO Bool
-showMessage key True _ True = do
-    showBanner
-    showEvaluationResult key True
-    pure False
-showMessage key value Nothing showBanner = do
+showMessage :: String -> Bool -> Maybe Bool -> IO ()
+showMessage key value Nothing = do
     showEvaluationResult key value
-    pure showBanner
-showMessage key value (Just lastValue) showBanner
+    showBanner value
+showMessage key value (Just lastValue)
     | value /= lastValue = do
         showEvaluationResult key value
-        pure showBanner
-    | otherwise = pure showBanner
+        showBanner value
+    | otherwise = pure ()
 
 waitForClient :: LD.Client -> IO Bool
 waitForClient client = do
@@ -57,12 +54,12 @@ waitForClient client = do
         LD.Initialized -> return True
         _anyOtherStatus -> return False
 
-evaluateLoop :: LD.Client -> String -> LD.Context -> Maybe Bool -> Bool -> Bool -> IO ()
-evaluateLoop client featureFlagKey context lastValue showBanner ciMode = do
+evaluateLoop :: LD.Client -> String -> LD.Context -> Maybe Bool -> Bool -> IO ()
+evaluateLoop client featureFlagKey context lastValue ciMode = do
     value <- LD.boolVariation client (pack featureFlagKey) context False
-    showBanner' <- showMessage featureFlagKey value lastValue showBanner
+    showMessage featureFlagKey value lastValue
 
-    if ciMode then pure () else threadDelay (1 * 1_000_000) >> evaluateLoop client featureFlagKey context (Just value) showBanner' False
+    if ciMode then pure () else threadDelay (1 * 1_000_000) >> evaluateLoop client featureFlagKey context (Just value) ciMode
 
 evaluate :: Maybe String -> Maybe String -> Bool -> IO ()
 evaluate (Just sdkKey) Nothing ciMode = do evaluate (Just sdkKey) (Just "sample-feature") ciMode
@@ -76,7 +73,7 @@ evaluate (Just sdkKey) (Just featureFlagKey) ciMode = do
     case initialized of
         Just True ->  do
             print "*** SDK successfully initialized!"
-            evaluateLoop client featureFlagKey context Nothing True ciMode
+            evaluateLoop client featureFlagKey context Nothing ciMode
         _notInitialized -> putStrLn "*** SDK failed to initialize. Please check your internet connection and SDK credential for any typo."
 evaluate  _ _ _ = putStrLn "*** You must define LAUNCHDARKLY_SERVER_KEY and LAUNCHDARKLY_FLAG_KEY before running this script"
 

@@ -11,15 +11,11 @@ import qualified LaunchDarkly.Server as LD
 import System.Timeout (timeout)
 import Text.Printf (printf, hPrintf)
 import System.Environment (lookupEnv)
-import Data.Time (getCurrentTime)
-import Data.Time.Format
 import Data.Maybe (isJust)
 
 showEvaluationResult :: String -> Bool -> IO ()
 showEvaluationResult key value = do
-    now <- getCurrentTime
-    let formattedTime = formatTime defaultTimeLocale "%H:%M:%S" now
-    printf "*** %s: The %s feature flag evaluates to %s\n" formattedTime key (show value)
+    printf "*** The %s feature flag evaluates to %s\n" key (show value)
 
 showBanner :: Bool -> IO ()
 showBanner False = pure ()
@@ -75,12 +71,12 @@ evaluate (Just sdkKey) (Just featureFlagKey) ciMode = do
             print "*** SDK successfully initialized!"
             evaluateLoop client featureFlagKey context Nothing ciMode
         _notInitialized -> putStrLn "*** SDK failed to initialize. Please check your internet connection and SDK credential for any typo."
-evaluate  _ _ _ = putStrLn "*** You must define LAUNCHDARKLY_SERVER_KEY and LAUNCHDARKLY_FLAG_KEY before running this script"
+evaluate  _ _ _ = putStrLn "*** You must define LAUNCHDARKLY_SDK_KEY and LAUNCHDARKLY_FLAG_KEY before running this script"
 
 main :: IO ()
 main = do
     -- Set sdkKey to your LaunchDarkly SDK key.
-    sdkKey <- lookupEnv "LAUNCHDARKLY_SERVER_KEY"
+    sdkKey <- lookupEnv "LAUNCHDARKLY_SDK_KEY"
     -- Set featureFlagKey to the feature flag key you want to evaluate.
     featureFlagKey <- lookupEnv "LAUNCHDARKLY_FLAG_KEY"
     ciMode <- lookupEnv "CI"

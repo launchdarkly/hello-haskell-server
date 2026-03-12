@@ -27,6 +27,9 @@ jobs:
           ghc-version: 8.10.7
           enable-stack: true
 
+      - name: Install system dependencies
+        run: sudo apt-get update && sudo apt-get install -y libpcre3-dev
+
       - uses: launchdarkly/gh-actions/actions/verify-hello-app@verify-hello-app-v2.0.1
         with:
           use_server_key: true

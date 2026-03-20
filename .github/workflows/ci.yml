@@ -22,7 +22,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: haskell-actions/setup@v2
+      - uses: haskell-actions/setup@ec49483bfc012387b227434aba37f03a6e8ba9ed # v2
         with:
           ghc-version: 8.10.7
           enable-stack: true

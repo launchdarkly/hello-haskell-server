@@ -20,7 +20,7 @@ jobs:
       id-token: write # Needed if using OIDC to get release secrets.
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: haskell-actions/setup@f9150cb1d140e9a9271700670baa38991e6fa25c # v2.10.3
         with:

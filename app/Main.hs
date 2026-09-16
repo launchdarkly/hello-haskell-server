@@ -3,13 +3,14 @@
 module Main where
 
 import Control.Concurrent  (threadDelay)
-import Control.Monad       (forever)
-import Data.Text           (Text, pack)
+import Data.Text           (pack)
 import Data.Function       ((&))
 
 import qualified LaunchDarkly.Server as LD
+import System.Exit (exitFailure)
+import System.IO (hPutStrLn, stderr)
 import System.Timeout (timeout)
-import Text.Printf (printf, hPrintf)
+import Text.Printf (printf)
 import System.Environment (lookupEnv)
 import Data.Maybe (isJust)
 
@@ -58,6 +59,9 @@ evaluateLoop client featureFlagKey context lastValue ciMode = do
     if ciMode then pure () else threadDelay (1 * 1_000_000) >> evaluateLoop client featureFlagKey context (Just value) ciMode
 
 evaluate :: Maybe String -> Maybe String -> Bool -> IO ()
+evaluate Nothing _ _ = do
+    hPutStrLn stderr "*** You must define LAUNCHDARKLY_SDK_KEY before running this script"
+    exitFailure
 evaluate (Just sdkKey) Nothing ciMode = do evaluate (Just sdkKey) (Just "sample-feature") ciMode
 evaluate (Just sdkKey) (Just featureFlagKey) ciMode = do
     -- Set up the evaluation context. This context should appear on your
@@ -68,10 +72,11 @@ evaluate (Just sdkKey) (Just featureFlagKey) ciMode = do
 
     case initialized of
         Just True ->  do
-            print "*** SDK successfully initialized!"
+            putStrLn "*** SDK successfully initialized!"
             evaluateLoop client featureFlagKey context Nothing ciMode
-        _notInitialized -> putStrLn "*** SDK failed to initialize. Please check your internet connection and SDK credential for any typo."
-evaluate  _ _ _ = putStrLn "*** You must define LAUNCHDARKLY_SDK_KEY and LAUNCHDARKLY_FLAG_KEY before running this script"
+        _notInitialized -> do
+            hPutStrLn stderr "*** SDK failed to initialize. Please check your internet connection and SDK credential for any typo."
+            exitFailure
 
 main :: IO ()
 main = do

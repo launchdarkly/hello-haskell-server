@@ -4,4 +4,9 @@ packages:
 - .
 
 extra-deps:
-- launchdarkly-server-sdk-4.6.0
+- launchdarkly-server-sdk-4.6.1
+
+# GCC 15+ defaults to C23, which breaks the C sources of older packages in this
+# snapshot (e.g. hashtables-1.2.4.2). Compile all C code as gnu17.
+ghc-options:
+  "$everything": -optc-std=gnu17
